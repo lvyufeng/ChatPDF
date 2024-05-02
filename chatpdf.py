@@ -508,4 +508,5 @@ if __name__ == "__main__":
         rerank_model_name_or_path=args.rerank_model_name,
     )
     r, refs = m.predict('自然语言中的非平行迁移是指什么？')
-    print(r, refs)
+    print(r)
+    print(refs)
