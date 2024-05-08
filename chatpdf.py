@@ -11,7 +11,6 @@ from threading import Thread
 from typing import Union, List
 
 import jieba
-import mindspore
 from loguru import logger
 from mindnlp.peft import PeftModel
 from msimilarities import (
@@ -282,6 +281,27 @@ class ChatPDF:
         self.corpus_files = files
         logger.debug(f"files: {files}, corpus size: {len(self.sim_model.corpus)}, top3: "
                      f"{list(self.sim_model.corpus.values())[:3]}")
+
+    def reset_corpus(self, files: Union[str, List[str]]):
+        """Load document files."""
+        if isinstance(files, str):
+            files = [files]
+        for doc_file in files:
+            if doc_file.endswith('.pdf'):
+                corpus = self.extract_text_from_pdf(doc_file)
+            elif doc_file.endswith('.docx'):
+                corpus = self.extract_text_from_docx(doc_file)
+            elif doc_file.endswith('.md'):
+                corpus = self.extract_text_from_markdown(doc_file)
+            else:
+                corpus = self.extract_text_from_txt(doc_file)
+            full_text = '\n'.join(corpus)
+            chunks = self.text_splitter.split_text(full_text)
+            self.sim_model.reset_corpus(chunks)
+        self.corpus_files = files
+        logger.debug(f"files: {files}, corpus size: {len(self.sim_model.corpus)}, top3: "
+                     f"{list(self.sim_model.corpus.values())[:3]}")
+
 
     @staticmethod
     def get_file_hash(fpaths):

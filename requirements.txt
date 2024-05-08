@@ -1,0 +1,7 @@
+mindspore
+mindnlp
+PyMuPDF
+ms2vec
+msimilarities
+logru
+jieba
