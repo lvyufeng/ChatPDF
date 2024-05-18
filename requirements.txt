@@ -3,5 +3,7 @@ mindnlp
 PyMuPDF
 ms2vec
 msimilarities
-logru
+loguru
 jieba
+gradio
+PyPDF2
