@@ -122,7 +122,7 @@ class ChatPDF:
             self,
             similarity_model: SimilarityABC = None,
             generate_model_type: str = "auto",
-            generate_model_name_or_path: str = "01-ai/Yi-6B-Chat",
+            generate_model_name_or_path: str = "01ai/Yi-6B-Chat",
             lora_model_name_or_path: str = None,
             corpus_files: Union[str, List[str]] = None,
             save_corpus_emb_dir: str = "./corpus_embs/",
@@ -179,10 +179,10 @@ class ChatPDF:
             self.add_corpus(corpus_files)
         self.save_corpus_emb_dir = save_corpus_emb_dir
         if rerank_model_name_or_path is None:
-            rerank_model_name_or_path = "BAAI/bge-reranker-base"
+            rerank_model_name_or_path = "Xorbits/bge-reranker-base"
         if rerank_model_name_or_path:
-            self.rerank_tokenizer = AutoTokenizer.from_pretrained(rerank_model_name_or_path)
-            self.rerank_model = AutoModelForSequenceClassification.from_pretrained(rerank_model_name_or_path)
+            self.rerank_tokenizer = AutoTokenizer.from_pretrained(rerank_model_name_or_path, mirror='modelscope')
+            self.rerank_model = AutoModelForSequenceClassification.from_pretrained(rerank_model_name_or_path, mirror='modelscope')
             self.rerank_model.set_train(False)
         else:
             self.rerank_model = None
@@ -205,19 +205,18 @@ class ChatPDF:
     ):
         """Init generate model."""
         model_class, tokenizer_class = MODEL_CLASSES[gen_model_type]
-        tokenizer = tokenizer_class.from_pretrained(gen_model_name_or_path, trust_remote_code=True)
+        tokenizer = tokenizer_class.from_pretrained(gen_model_name_or_path, mirror='modelscope')
         model = model_class.from_pretrained(
-            gen_model_name_or_path,
+            gen_model_name_or_path, mirror='modelscope'
         )
         try:
-            model.generation_config = GenerationConfig.from_pretrained(gen_model_name_or_path, trust_remote_code=True)
+            model.generation_config = GenerationConfig.from_pretrained(gen_model_name_or_path, mirror='modelscope')
         except Exception as e:
             logger.warning(f"Failed to load generation config from {gen_model_name_or_path}, {e}")
         if peft_name:
             model = PeftModel.from_pretrained(
                 model,
                 peft_name,
-                torch_dtype="auto",
             )
             logger.info(f"Loaded peft model from {peft_name}")
         model.set_train(False)
